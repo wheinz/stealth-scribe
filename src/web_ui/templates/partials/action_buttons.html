@@ -1,0 +1,123 @@
+<div id="action-buttons"
+     {% if has_running_job %}
+     hx-get="/meeting/{{ stem }}/actions/"
+     hx-trigger="every 3s"
+     hx-swap="outerHTML"
+     {% endif %}
+     class="flex gap-2 mb-6 flex-wrap">
+
+{% if transcribe_job %}
+    {% if transcribe_job.status == "completed" %}
+    <span class="inline-flex items-center gap-1.5 bg-green-900/30 border border-green-700/50 text-green-400 text-xs px-3 py-1.5 rounded-lg">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Transcribed
+    </span>
+    {% elif transcribe_job.status == "running" or transcribe_job.status == "pending" %}
+    <span class="inline-flex items-center gap-1.5 bg-yellow-900/30 border border-yellow-700/50 text-yellow-400 text-xs px-3 py-1.5 rounded-lg">
+        <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+        Transcribing...
+    </span>
+    {% elif transcribe_job.status == "failed" %}
+    <button
+        hx-post="/meeting/{{ stem }}/jobs/start/"
+        hx-vals='{"task_type": "transcribe"}'
+        hx-target="#action-buttons"
+        hx-swap="outerHTML"
+        class="inline-flex items-center gap-1.5 bg-red-900/30 border border-red-700/50 hover:border-red-600/50 text-red-400 hover:text-red-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+    >
+        <span class="text-xs">&#10007;</span> Retry Transcribe
+    </button>
+    {% endif %}
+{% else %}
+    <button
+        hx-post="/meeting/{{ stem }}/jobs/start/"
+        hx-vals='{"task_type": "transcribe"}'
+        hx-target="#action-buttons"
+        hx-swap="outerHTML"
+        {% if has_wav %}
+        class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+        {% else %}
+        disabled class="bg-gray-800/50 border border-gray-800 text-gray-600 text-xs px-3 py-1.5 rounded-lg cursor-not-allowed"
+        {% endif %}
+    >
+        Transcribe
+    </button>
+{% endif %}
+
+{% if diarize_job %}
+    {% if diarize_job.status == "completed" %}
+    <span class="inline-flex items-center gap-1.5 bg-green-900/30 border border-green-700/50 text-green-400 text-xs px-3 py-1.5 rounded-lg">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Diarized
+    </span>
+    {% elif diarize_job.status == "running" or diarize_job.status == "pending" %}
+    <span class="inline-flex items-center gap-1.5 bg-yellow-900/30 border border-yellow-700/50 text-yellow-400 text-xs px-3 py-1.5 rounded-lg">
+        <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+        Diarizing...
+    </span>
+    {% elif diarize_job.status == "failed" %}
+    <button
+        hx-post="/meeting/{{ stem }}/jobs/start/"
+        hx-vals='{"task_type": "diarize"}'
+        hx-target="#action-buttons"
+        hx-swap="outerHTML"
+        class="inline-flex items-center gap-1.5 bg-red-900/30 border border-red-700/50 hover:border-red-600/50 text-red-400 hover:text-red-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+    >
+        <span class="text-xs">&#10007;</span> Retry Diarize
+    </button>
+    {% endif %}
+{% else %}
+    <button
+        hx-post="/meeting/{{ stem }}/jobs/start/"
+        hx-vals='{"task_type": "diarize"}'
+        hx-target="#action-buttons"
+        hx-swap="outerHTML"
+        {% if has_wav %}
+        class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+        {% else %}
+        disabled class="bg-gray-800/50 border border-gray-800 text-gray-600 text-xs px-3 py-1.5 rounded-lg cursor-not-allowed"
+        {% endif %}
+    >
+        Diarize
+    </button>
+{% endif %}
+
+{% if merge_job %}
+    {% if merge_job.status == "completed" %}
+    <span class="inline-flex items-center gap-1.5 bg-green-900/30 border border-green-700/50 text-green-400 text-xs px-3 py-1.5 rounded-lg">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Merged
+    </span>
+    {% elif merge_job.status == "running" or merge_job.status == "pending" %}
+    <span class="inline-flex items-center gap-1.5 bg-yellow-900/30 border border-yellow-700/50 text-yellow-400 text-xs px-3 py-1.5 rounded-lg">
+        <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+        Merging...
+    </span>
+    {% elif merge_job.status == "failed" %}
+    <button
+        hx-post="/meeting/{{ stem }}/jobs/start/"
+        hx-vals='{"task_type": "merge"}'
+        hx-target="#action-buttons"
+        hx-swap="outerHTML"
+        class="inline-flex items-center gap-1.5 bg-red-900/30 border border-red-700/50 hover:border-red-600/50 text-red-400 hover:text-red-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+    >
+        <span class="text-xs">&#10007;</span> Retry Merge
+    </button>
+    {% endif %}
+{% else %}
+    <button
+        hx-post="/meeting/{{ stem }}/jobs/start/"
+        hx-vals='{"task_type": "merge"}'
+        hx-target="#action-buttons"
+        hx-swap="outerHTML"
+        {% if transcribe_job.status == "completed" and diarize_job.status == "completed" %}
+        class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+        {% else %}
+        disabled class="bg-gray-800/50 border border-gray-800 text-gray-600 text-xs px-3 py-1.5 rounded-lg cursor-not-allowed"
+        {% endif %}
+    >
+        Merge
+    </button>
+{% endif %}
+
+</div>

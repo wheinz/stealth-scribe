@@ -1,0 +1,44 @@
+<div id="recording-banner"
+     class="pb-3"
+     {% if job.status == "running" or job.status == "pending" %}
+     hx-get="/jobs/{{ job.id }}/status/"
+     hx-trigger="every 2s"
+     hx-swap="outerHTML"
+     {% endif %}>
+    {% if job.status == "pending" %}
+    <div class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 flex items-center gap-3">
+        <span class="text-gray-400 text-sm">Starting recording...</span>
+    </div>
+    {% elif job.status == "running" %}
+    <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-lg px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse"></span>
+            <span class="text-yellow-300 text-sm font-medium">Recording...</span>
+            {% if stem %}
+            <span class="text-yellow-500 text-xs font-mono">{{ stem }}</span>
+            {% endif %}
+        </div>
+        <button
+            hx-post="/jobs/{{ job.id }}/stop/"
+            hx-target="#recording-banner"
+            hx-swap="outerHTML"
+            class="bg-red-900/50 hover:bg-red-800/50 text-red-300 text-xs px-3 py-1 rounded border border-red-700/50 transition-colors cursor-pointer"
+        >
+            Stop
+        </button>
+    </div>
+    {% elif job.status == "completed" %}
+    <div class="bg-green-900/30 border border-green-700/50 rounded-lg px-4 py-3">
+        <div class="flex items-center gap-3">
+            <span class="text-green-400 text-sm">Recording saved</span>
+            {% if stem %}
+            <span class="text-green-500 text-xs font-mono">meeting_{{ stem }}.wav</span>
+            {% endif %}
+        </div>
+    </div>
+    {% elif job.status == "failed" %}
+    <div class="bg-red-900/30 border border-red-700/50 rounded-lg px-4 py-3">
+        <span class="text-red-400 text-sm">Recording failed{% if job.error %}: {{ job.error }}{% endif %}</span>
+    </div>
+    {% endif %}
+</div>

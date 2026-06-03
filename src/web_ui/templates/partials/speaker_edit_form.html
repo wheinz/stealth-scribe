@@ -1,0 +1,31 @@
+<form id="speaker-{{ speaker_id }}"
+      hx-post="/meeting/{{ stem }}/speaker/{{ speaker_id }}/"
+      hx-target="#speaker-{{ speaker_id }}"
+      hx-swap="outerHTML"
+      class="inline-flex items-center gap-2">
+    <input
+        type="text"
+        name="display_name"
+        value="{{ current_name }}"
+        placeholder="{{ speaker_id }}"
+        autofocus
+        class="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 w-28 focus:outline-none focus:border-blue-500"
+    >
+    <button type="submit" class="text-green-500 hover:text-green-400 transition-colors cursor-pointer border-0 bg-transparent p-0" title="Save">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+    </button>
+    <button
+        type="button"
+        hx-get="/meeting/{{ stem }}/speaker/{{ speaker_id }}/"
+        hx-target="#speaker-{{ speaker_id }}"
+        hx-swap="outerHTML"
+        class="text-gray-500 hover:text-gray-400 transition-colors cursor-pointer border-0 bg-transparent p-0"
+        title="Cancel"
+    >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+</form>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-semibold">Meetings</h2>
+    <button
+        hx-post="/jobs/start/"
+        hx-target="#recording-banner"
+        hx-swap="outerHTML"
+        {% if active_recording %}
+        disabled class="bg-gray-800/50 border border-gray-800 text-gray-600 text-sm px-4 py-2 rounded-lg cursor-not-allowed"
+        {% else %}
+        class="bg-blue-900 hover:bg-blue-800 border border-blue-700 text-blue-200 text-sm px-4 py-2 rounded-lg transition-colors cursor-pointer"
+        {% endif %}
+    >
+        {% if active_recording %}Recording...{% else %}Record New Meeting{% endif %}
+    </button>
+</div>
+
+<div id="recording-banner" class="mb-6">
+    {% if active_recording %}
+        {% include "partials/job_status.html" with job=active_recording stem=active_recording.meeting_stem %}
+    {% endif %}
+</div>
+
+{% if meetings %}
+    <div class="space-y-3">
+    {% for m in meetings %}
+        <a href="/meeting/{{ m.stem }}/"
+           class="block bg-gray-900 border border-gray-800 rounded-lg px-5 py-4 hover:border-gray-600 transition-colors">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="font-mono text-sm text-gray-300">{{ m.stem }}</span>
+                    <div class="flex gap-2 mt-1">
+                        {% if m.has_merged %}
+                            <span class="text-xs px-2 py-0.5 rounded bg-green-900 text-green-300">merged</span>
+                        {% elif m.has_diarization and m.has_transcription %}
+                            <span class="text-xs px-2 py-0.5 rounded bg-blue-900 text-blue-300">ready</span>
+                        {% elif m.has_diarization %}
+                            <span class="text-xs px-2 py-0.5 rounded bg-yellow-900 text-yellow-300">diarized</span>
+                        {% elif m.has_transcription %}
+                            <span class="text-xs px-2 py-0.5 rounded bg-yellow-900 text-yellow-300">transcribed</span>
+                        {% else %}
+                            <span class="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400">recorded</span>
+                        {% endif %}
+                        {% if m.has_wav %}
+                            <span class="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400">wav</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </div>
+        </a>
+    {% endfor %}
+    </div>
+{% else %}
+    <p class="text-gray-500">No meetings yet. Click <strong>Record New Meeting</strong> to get started.</p>
+{% endif %}
+{% endblock %}

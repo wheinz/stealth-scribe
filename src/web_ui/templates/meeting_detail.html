@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <div>
+        <a href="/" class="text-sm text-gray-400 hover:text-gray-200">&larr; Back</a>
+        <h2 class="text-2xl font-semibold mt-1">Meeting <span class="font-mono text-gray-400">{{ stem }}</span></h2>
+    </div>
+    <div class="flex items-center gap-3">
+        {% if segments %}
+        <a href="/meeting/{{ stem }}/download/"
+           class="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-lg border border-gray-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Download
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% include "partials/action_buttons.html" with stem=stem has_wav=has_wav has_running_job=has_running_job transcribe_job=jobs.transcribe diarize_job=jobs.diarize merge_job=jobs.merge %}
+
+{% if not has_wav %}
+    <div class="bg-yellow-900/30 border border-yellow-700/50 text-yellow-200 rounded-lg px-4 py-3 text-sm">
+        WAV file not found. Start recording first.
+    </div>
+{% elif not segments %}
+    <div class="bg-yellow-900/30 border border-yellow-700/50 text-yellow-200 rounded-lg px-4 py-3 text-sm">
+        No merged transcript yet. Run <strong>Transcribe</strong> and <strong>Diarize</strong>, then <strong>Merge</strong> from the buttons above.
+    </div>
+{% else %}
+    <div class="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-800 text-left text-gray-400 text-xs uppercase tracking-wider">
+                    <th class="px-4 py-3 w-36">Speaker</th>
+                    <th class="px-4 py-3">Text</th>
+                    <th class="px-4 py-3 w-24">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for seg in segments %}
+                <tr class="border-b border-gray-800/50 last:border-0">
+                    <td class="px-4 py-3 align-top">
+                        {% include "partials/speaker_row.html" with stem=stem speaker_id=seg.speaker display_name=seg.display_name %}
+                    </td>
+                    <td class="px-4 py-3 text-gray-300 leading-relaxed">{{ seg.text }}</td>
+                    <td class="px-4 py-3 align-top">
+                        <button
+                            x-data="{ playing: false, audio: null }"
+                            @click="
+                                if (playing) {
+                                    audio.pause();
+                                    playing = false;
+                                } else {
+                                    if (!audio) {
+                                        audio = new Audio('/meeting/{{ stem }}/audio/{{ seg.speaker }}/');
+                                        audio.addEventListener('ended', () => playing = false);
+                                    }
+                                    audio.play();
+                                    playing = true;
+                                }
+                            "
+                            class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200 transition-colors cursor-pointer border-0 bg-transparent"
+                        >
+                            <svg x-show="!playing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <svg x-show="playing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span x-text="playing ? 'Stop' : 'Play'"></span>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}
