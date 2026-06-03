@@ -37,11 +37,6 @@ def _get_merge_lock(stem: str) -> threading.Lock:
 
 
 def _run_job(job_id: int) -> None:
-    from src.diarizer import diarize  # noqa: PLC0415
-    from src.merger import merge  # noqa: PLC0415
-    from src.recorder import record  # noqa: PLC0415
-    from src.transcriber import transcribe  # noqa: PLC0415
-
     job = Job.objects.get(id=job_id)
     job.status = Job.Status.RUNNING
     job.started_at = timezone.now()
@@ -51,6 +46,11 @@ def _run_job(job_id: int) -> None:
     stem = job.meeting_stem
 
     try:
+        from src.diarizer import diarize  # noqa: PLC0415
+        from src.merger import merge  # noqa: PLC0415
+        from src.recorder import record  # noqa: PLC0415
+        from src.transcriber import transcribe  # noqa: PLC0415
+
         wav = Path(f"data/raw/meeting_{stem}/meeting_{stem}.wav")
 
         if task_type == Job.TaskType.RECORD:
@@ -78,24 +78,23 @@ def _run_job(job_id: int) -> None:
         return
 
     if task_type == Job.TaskType.RECORD:
-        for next_task in (Job.TaskType.TRANSCRIBE, Job.TaskType.DIARIZE):
-            next_job = Job.objects.create(meeting_stem=stem, task_type=next_task)
-            t = threading.Thread(target=_run_job, args=(next_job.id,), daemon=True)
-            t.start()
+        next_job = Job.objects.create(meeting_stem=stem, task_type=Job.TaskType.TRANSCRIBE)
+        t = threading.Thread(target=_run_job, args=(next_job.id,), daemon=True)
+        t.start()
 
-    elif task_type in (Job.TaskType.TRANSCRIBE, Job.TaskType.DIARIZE):
-        sibling = (
-            Job.TaskType.DIARIZE
-            if task_type == Job.TaskType.TRANSCRIBE
-            else Job.TaskType.TRANSCRIBE
-        )
-        sibling_done = Job.objects.filter(
+    elif task_type == Job.TaskType.TRANSCRIBE:
+        next_job = Job.objects.create(meeting_stem=stem, task_type=Job.TaskType.DIARIZE)
+        t = threading.Thread(target=_run_job, args=(next_job.id,), daemon=True)
+        t.start()
+
+    elif task_type == Job.TaskType.DIARIZE:
+        transcription_done = Job.objects.filter(
             meeting_stem=stem,
-            task_type=sibling,
+            task_type=Job.TaskType.TRANSCRIBE,
             status=Job.Status.COMPLETED,
         ).exists()
 
-        if sibling_done:
+        if transcription_done:
             lock = _get_merge_lock(stem)
             with lock:
                 merge_exists = Job.objects.filter(

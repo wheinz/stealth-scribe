@@ -30,7 +30,7 @@ def record(
     wav_file = wave.open(str(output_path), "wb")
     wav_file.setnchannels(1)
     wav_file.setsampwidth(2)
-    wav_file.setframerate(16000)
+    wav_file.setframerate(48000)
 
     if stop_event is None:
         stop_event = threading.Event()
@@ -48,13 +48,13 @@ def record(
         wav_file.writeframes(indata.tobytes())
 
     print(f"Recording to {output_path}...")
-    print("Sample rate: 16000 Hz | Channels: mono | Format: 16-bit PCM")
+    print("Sample rate: 48000 Hz | Channels: mono | Format: 16-bit PCM")
     if stop_event is not None:
         print("Press Ctrl+C to stop recording.\n")
 
     try:
         with sd.InputStream(
-            samplerate=16000,
+            samplerate=48000,
             channels=1,
             dtype="int16",
             callback=callback,
@@ -67,6 +67,6 @@ def record(
     finally:
         wav_file.close()
 
-    duration = wav_file.getnframes() / 16000
+    duration = wav_file.getnframes() / 48000
     print(f"Recording saved: {output_path} ({duration:.1f}s)")
     return output_path
