@@ -107,17 +107,7 @@ def _run_job(job_id: int) -> None:
     if job.status != Job.Status.COMPLETED:
         return
 
-    if task_type == Job.TaskType.RECORD:
-        next_job = Job.objects.create(meeting_stem=stem, task_type=Job.TaskType.TRANSCRIBE)
-        t = threading.Thread(target=_run_job, args=(next_job.id,), daemon=True)
-        t.start()
-
-    elif task_type == Job.TaskType.TRANSCRIBE:
-        next_job = Job.objects.create(meeting_stem=stem, task_type=Job.TaskType.DIARIZE)
-        t = threading.Thread(target=_run_job, args=(next_job.id,), daemon=True)
-        t.start()
-
-    elif task_type == Job.TaskType.DIARIZE:
+    if task_type == Job.TaskType.DIARIZE:
         transcription_done = Job.objects.filter(
             meeting_stem=stem,
             task_type=Job.TaskType.TRANSCRIBE,
