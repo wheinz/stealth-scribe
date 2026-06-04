@@ -4,9 +4,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PYANNOTE_AUTH_TOKEN = os.environ.get("PYANNOTE_AUTH_TOKEN", "")
-PYANNOTE_DIARIZATION_MODEL = os.environ.get(
-    "PYANNOTE_DIARIZATION_MODEL", "pyannote/speaker-diarization-3.1"
+SHERPA_SEGMENTATION_MODEL = os.environ.get(
+    "SHERPA_SEGMENTATION_MODEL",
+    "models/sherpa-onnx-pyannote-segmentation-3-0/model.int8.onnx",
+)
+SHERPA_EMBEDDING_MODEL = os.environ.get(
+    "SHERPA_EMBEDDING_MODEL",
+    "models/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx",
 )
 WHISPER_MODEL_PATH = os.environ.get("WHISPER_MODEL_PATH", "")
 WHISPER_SERVER_URL = os.environ.get("WHISPER_SERVER_URL", "http://localhost:8080")

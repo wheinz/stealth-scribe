@@ -8,9 +8,11 @@ dependencies = [
     "django>=6.0.5",
     "django-ninja>=1.6.2",
     "httpx>=0.28.1",
-    "pyannote-audio>=4.0.4",
+    "onnxruntime>=1.26.0",
     "python-dotenv>=1.2.2",
+    "sherpa-onnx>=1.13.2",
     "sounddevice>=0.5.5",
+    "soundfile>=0.13.1",
 ]
 
 [dependency-groups]
