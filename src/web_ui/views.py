@@ -59,7 +59,37 @@ def _run_job(job_id: int) -> None:
             if output is None:
                 raise RuntimeError("Recording failed — no microphone available")
         elif task_type == Job.TaskType.TRANSCRIBE:
-            transcribe(wav)
+            import socket
+            import subprocess
+            import time
+
+            proc = subprocess.Popen(
+                [
+                    '/home/thomas/stealth-scribe/vendor/whisper.cpp/build/bin/whisper-server',
+                    '-m', '/home/thomas/stealth-scribe/models/ggml-small.bin',
+                    '--host', '0.0.0.0', '--port', '8080',
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            try:
+                for _ in range(30):
+                    time.sleep(1)
+                    try:
+                        with socket.create_connection(('127.0.0.1', 8080), timeout=1):
+                            break
+                    except (ConnectionRefusedError, OSError):
+                        pass
+                else:
+                    raise RuntimeError('Whisper server failed to start within 30s')
+                transcribe(wav)
+            finally:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait()
         elif task_type == Job.TaskType.DIARIZE:
             diarize(wav)
         elif task_type == Job.TaskType.MERGE:
