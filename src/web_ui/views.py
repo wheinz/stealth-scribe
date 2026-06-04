@@ -82,7 +82,7 @@ def _run_job(job_id: int) -> None:
                         pass
                 else:
                     raise RuntimeError('Whisper server failed to start within 30s')
-                transcribe(wav)
+                transcribe(wav, language=job.language)
             finally:
                 proc.terminate()
                 try:
@@ -296,7 +296,8 @@ def start_job(request: HttpRequest, stem: str) -> HttpResponse:
     if existing:
         return _render_action_buttons(request, stem)
 
-    job = Job.objects.create(meeting_stem=stem, task_type=task_type)
+    language = request.POST.get("language", "auto").strip() or "auto"
+    job = Job.objects.create(meeting_stem=stem, task_type=task_type, language=language)
     t = threading.Thread(target=_run_job, args=(job.id,), daemon=True)
     t.start()
 

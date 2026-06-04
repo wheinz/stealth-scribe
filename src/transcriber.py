@@ -11,7 +11,7 @@ def _output_path(audio_path: Path) -> Path:
     return audio_path.with_name(f"{stem}_transcription.json")
 
 
-def transcribe(audio_path: Path) -> Path:
+def transcribe(audio_path: Path, language: str = "auto") -> Path:
     if not audio_path.exists():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
@@ -21,7 +21,7 @@ def transcribe(audio_path: Path) -> Path:
         response = client.post(
             f"{WHISPER_SERVER_URL}/inference",
             files={"file": (audio_path.name, audio_bytes, "audio/wav")},
-            data={"response_format": "verbose_json"},
+            data={"response_format": "verbose_json", "language": language},
         )
         response.raise_for_status()
 

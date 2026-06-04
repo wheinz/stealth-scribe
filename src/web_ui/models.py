@@ -28,6 +28,7 @@ class Job(models.Model):
 
     meeting_stem = models.CharField(max_length=32)
     task_type = models.CharField(max_length=16, choices=TaskType.choices)
+    language = models.CharField(max_length=16, default='auto', blank=True)
     status = models.CharField(
         max_length=16, choices=Status.choices, default=Status.PENDING
     )

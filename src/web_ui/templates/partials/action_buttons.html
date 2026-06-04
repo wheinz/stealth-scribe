@@ -29,19 +29,30 @@
     </button>
     {% endif %}
 {% else %}
-    <button
-        hx-post="/meeting/{{ stem }}/jobs/start/"
-        hx-vals='{"task_type": "transcribe"}'
-        hx-target="#action-buttons"
-        hx-swap="outerHTML"
-        {% if has_wav %}
-        class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
-        {% else %}
-        disabled class="bg-gray-800/50 border border-gray-800 text-gray-600 text-xs px-3 py-1.5 rounded-lg cursor-not-allowed"
-        {% endif %}
-    >
-        Transcribe
-    </button>
+    <div class="inline-flex items-center gap-1">
+        <button
+            hx-post="/meeting/{{ stem }}/jobs/start/"
+            hx-vals='{"task_type": "transcribe"}'
+            hx-include="#language-select-{{ stem }}"
+            hx-target="#action-buttons"
+            hx-swap="outerHTML"
+            {% if has_wav %}
+            class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+            {% else %}
+            disabled class="bg-gray-800/50 border border-gray-800 text-gray-600 text-xs px-3 py-1.5 rounded-lg cursor-not-allowed"
+            {% endif %}
+        >
+            Transcribe
+        </button>
+        <select id="language-select-{{ stem }}" name="language"
+                class="bg-gray-900 border border-gray-700 text-gray-400 text-xs px-2 py-1.5 rounded-lg cursor-pointer">
+            <option value="auto">auto</option>
+            <option value="nl">NL</option>
+            <option value="en">EN</option>
+            <option value="de">DE</option>
+            <option value="fr">FR</option>
+        </select>
+    </div>
 {% endif %}
 
 {% if diarize_job %}
