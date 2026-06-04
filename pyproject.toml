@@ -8,7 +8,7 @@ dependencies = [
     "django>=6.0.5",
     "django-ninja>=1.6.2",
     "httpx>=0.28.1",
-    "onnxruntime>=1.26.0",
+    "onnxruntime==1.24.4",
     "python-dotenv>=1.2.2",
     "sherpa-onnx>=1.13.2",
     "sounddevice>=0.5.5",
